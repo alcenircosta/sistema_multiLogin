@@ -1,7 +1,10 @@
 <?php
 session_start();
-$pdo = new PDO('mysql:host=localhost;dbname=multi_login','root','');
-
+$host = 'localhost';
+$dbname = 'multi_login';
+$user = 'root';
+$password = '';
+$pdo = new PDO('mysql:host='.$host.';dbname='.$dbname,$user,$password);
 if(isset($_POST['login']) && !isset($_SESSION['login'])){
 	$_SESSION['login'] = $_POST['login'];
 	$_SESSION['token'] = uniqid();
@@ -11,19 +14,23 @@ if(isset($_POST['login']) && !isset($_SESSION['login'])){
 	$sql->execute(array($_SESSION['login'],$_SESSION['token']));
 }
 
-if(!isset($_SESSION['login'])){
-	echo '<h2>Efetue LOGIN:</h2>';
-	echo'<form method="post"><input type="text" name="login" /><input type="submit" name="acao"/></form>';
+if(!isset($_SESSION['login'])){ 
+	?>
+	<h2>Efetue LOGIN:</h2>
+	<form method="post">
+	<input type="text" name="login" />
+	<input type="submit" name="acao"/>
+	</form>
+	<?php
 }else{
 	$login = $_SESSION['login'];
 	$token = $_SESSION['token'];
 	$check = $pdo->prepare("SELECT `id` FROM `login` WHERE login = ? AND token = ?");
 	$check->execute(array($login,$token));
-
 	if(($check->rowcount()) == 1){
-		echo 'Olá, bem vindo, '.$_SESSION['login'];
+		echo '<h1>Olá, bem vindo, <u>'.$_SESSION['login'].'</u></h1>';
 	}else{
-		echo 'Você será desconectado pois encontramos outro usuário logado com esta conta';
+		echo '<h2>Você será desconectado pois encontramos outro <u>usuário logado com esta conta</u>';
 		session_destroy();
 	}
 }
